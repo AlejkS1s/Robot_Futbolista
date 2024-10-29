@@ -8,17 +8,20 @@ Robot que juega futbol, y va a competir en Torneo de robótica USCOTRON
 - Prohibido interferir: Sanciones y descalificación.
 ## Características de Hardware
   - ESP32
-  - Driver 4 Motores
+  - Driver 4 Motores DC (3v3 o 5v)
   - Baterias
+
 ## Características de Software
-En proceso de definición, se debe definir el hardware a utiliar en primer lugar.
+  - ESP32 SDK Arduino (PlatformIO)
+  - Android Studio (Java)
 
 ## Control del Robot 
 - **Control Manual**
-  - Aplicación android
+  - Aplicación android (Bluetooth).
   - joystick (Investigar).
   - Aplicación web.
-  - RF control a distancia
+  - RF control a distancia.
+
 - **Control Semiautomático** **Hard**
   Implementación avanzada que pueda ayudar al robot a reaccionar parcialmente de forma autónoma, asistiendo al operador en el juego.
 - **Control Automático**
