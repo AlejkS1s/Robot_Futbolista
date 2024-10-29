@@ -62,13 +62,5 @@ El control de los motores es esencial para la precisión en los movimientos del 
 | **A4950**     | 4.5 - 40 V        | 3.5 A                        | Muy baja          | PWM y digital        | MOSFET, menor disipación de energía, excelente para alta potencia |
 | **L6205**     | 8 - 52 V          | 2.8 A                        | Moderada          | PWM y digital        | Alta eficiencia, adecuado para motores de potencia media-alta |
 
-**Controladorespara 4 Motores DC**
-Aquí tienes una tabla comparativa de los controladores de motor que pueden manejar hasta cuatro motores:
-
-| Controlador                        | Voltaje Operativo | Corriente Máxima (por canal) | Canales de Motor | Modo de Control     | Características Destacadas                                       |
-|------------------------------------|-------------------|------------------------------|-------------------|----------------------|------------------------------------------------------------------|
-| **MDD10A (Dual Channel H-Bridge)** | 7 - 30 V         | 10 A                         | 2 (paralelo para 4) | PWM y entradas lógicas | Robusto y adecuado para motores de alta potencia, permite hasta 10A por canal.   |
-| **PCA9685 + MOSFETs**              | Depende del MOSFET | Depende del MOSFET          | 16 (PWM)          | I2C                  | Control de hasta 16 canales PWM; necesita MOSFETs para manejar corriente alta. Ideal para proyectos que requieren muchas salidas. |
-| **Pololu Dual G2 18v25 (Stackable)** | Hasta 30 V     | 25 A                         | 2 (stackable para 4) | PWM y digital       | Controlador de alta potencia, stackable para manejar hasta cuatro motores con gran capacidad de corriente. |
-FD04A is Rev2.0
-
+**Controladores para 4 Motores DC**
+Motor Shield Driver L293d Puente H Pap Dc Servo Arduino L293
