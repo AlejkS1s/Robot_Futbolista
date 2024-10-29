@@ -1,15 +1,28 @@
 # Robot_Futbolista
 Robot que juega futbol, y va a competir en Torneo de robótica USCOTRON
 ## Requisitos
+- Tracción: Libre.
+- Dimensiones máximas: 15 x 15 x 15 cm.
+- Materiales y diseño: Libre.
+- Indicador de encendido: Obligatorio.
+- Peso máximo: 750 gramos. Sin tolerancia.
+- Alimentación: Debe ser por baterías;
+- Resistencia: Las partes en contacto con otros robots deben ser resistentes para evitar roturas.
+- Restricciones: Prohibido el uso de sistemas de disparo, agarre, pateo, grippers, materiales pegajosos, solenoides, o cualquier sistema que empuje o agarre la pelota.
+
 - Control: Radiofrecuencia (RF) o Bluetooth.
 - Distancia mínima: 3 metros.
-- Frecuencias múltiples: Evitar interferencias; disponer de una alternativa.
-- Conflictos de frecuencia: Organizadores asignan nuevas frecuencias.
-- Prohibido interferir: Sanciones y descalificación.
+- Frecuencias múltiples: Evitar
+- interferencias; disponer de una alternativa.
+
 ## Características de Hardware
-  - ESP32
-  - Driver 4 Motores DC (3v3 o 5v)
-  - Baterias
+### ESP32
+
+### MOTORES DC
+
+### Driver 4 Motores DC (3v3 o 5v)
+
+### Baterias
 
 ## Características de Software
   - ESP32 SDK Arduino (PlatformIO)
@@ -34,6 +47,7 @@ Uso de baterías, ya sea recargables o de un solo uso:
 - Baterias de 9V
 - regulador para 3.3v (esp32)
 
+
 ### Etapa de Control de Motores
 El control de los motores es esencial para la precisión en los movimientos del robot. En esta etapa, se están evaluando diferentes controladores para optimizar la potencia, eficiencia y precisión.
 
@@ -53,7 +67,8 @@ Aquí tienes una tabla comparativa de los controladores de motor que pueden mane
 
 | Controlador                        | Voltaje Operativo | Corriente Máxima (por canal) | Canales de Motor | Modo de Control     | Características Destacadas                                       |
 |------------------------------------|-------------------|------------------------------|-------------------|----------------------|------------------------------------------------------------------|
-| **DRV8434S**                       | 4.5 - 48 V       | 1.5 A                        | 4                 | PWM y digital        | Alta eficiencia, baja generación de calor, buen rendimiento en aplicaciones de robótica móvil. |
 | **MDD10A (Dual Channel H-Bridge)** | 7 - 30 V         | 10 A                         | 2 (paralelo para 4) | PWM y entradas lógicas | Robusto y adecuado para motores de alta potencia, permite hasta 10A por canal.   |
 | **PCA9685 + MOSFETs**              | Depende del MOSFET | Depende del MOSFET          | 16 (PWM)          | I2C                  | Control de hasta 16 canales PWM; necesita MOSFETs para manejar corriente alta. Ideal para proyectos que requieren muchas salidas. |
 | **Pololu Dual G2 18v25 (Stackable)** | Hasta 30 V     | 25 A                         | 2 (stackable para 4) | PWM y digital       | Controlador de alta potencia, stackable para manejar hasta cuatro motores con gran capacidad de corriente. |
+FD04A is Rev2.0
+
