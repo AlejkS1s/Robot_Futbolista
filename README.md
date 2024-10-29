@@ -1,6 +1,6 @@
 # Robot_Futbolista
 Robot que juega futbol, y va a competir en Torneo de robótica USCOTRON
-## Requisitos
+# Requisitos
 - Tracción: Libre.
 - Dimensiones máximas: 15 x 15 x 15 cm.
 - Materiales y diseño: Libre.
@@ -12,8 +12,7 @@ Robot que juega futbol, y va a competir en Torneo de robótica USCOTRON
 
 - Control: Radiofrecuencia (RF) o Bluetooth.
 - Distancia mínima: 3 metros.
-- Frecuencias múltiples: Evitar
-- interferencias; disponer de una alternativa.
+- Frecuencias múltiples: Evitar - interferencias; disponer de una alternativa.
 
 ## Características de Hardware
 ### ESP32
@@ -49,18 +48,60 @@ Uso de baterías, ya sea recargables o de un solo uso:
 
 
 ### Etapa de Control de Motores
-El control de los motores es esencial para la precisión en los movimientos del robot. En esta etapa, se están evaluando diferentes controladores para optimizar la potencia, eficiencia y precisión.
+Para controllar los motores se va a utilizar Driver **L293D** Puente H Pap Dc, El punete H se encarga de controlar el sentido de giro de los motores ()
 
-**Controladores para 2 Motores DC**
+| Controlador | Tipo                                                 | Voltaje Operativo | Corriente Máxima (por canal) |     |
+| ----------- | ---------------------------------------------------- | ----------------- | ---------------------------- | --- |
+| **L298N**   | Dual H Bridge DC Motor Driver                        | 5 - 46 V          | 2 A                          |     |
+| **DRV8833** | two H-bridge drivers                                 | 2.7 - 10.8 V      | 1.5 A                        |     |
+| **DRV8825** | has two H-bridge drivers and a microstepping indexer | 8.2 - 45 V        | 2.5 A                        |     |
+| **L6205**   | DMOS Dual Full Bridge                                | 8 - 52 V          | 2.8 A                        |     |
+| **L923**    | quadruple high-current half-H drivers                | 4.5 V - 36 V      | 1A                           |     |
 
-| Controlador   | Voltaje Operativo | Corriente Máxima (por canal) | Caída de Voltaje | Modo de Control     | Características Destacadas                                  |
-|---------------|-------------------|------------------------------|-------------------|----------------------|------------------------------------------------------------|
-| **L298N**     | 5 - 46 V          | 2 A                          | Alta              | PWM y digital        | Comúnmente utilizado; diseño antiguo, menor eficiencia     |
-| **DRV8833**   | 2.7 - 10.8 V      | 1.5 A                        | Baja              | PWM y digital        | Compacto, eficiente, menor generación de calor             |
-| **DRV8825**   | 8.2 - 45 V        | 2.5 A                        | Baja              | PWM (con microstepping)| Compatible con motores paso a paso; ideal para alta precisión|
-| **TB6612FNG** | 2.5 - 13.5 V      | 1.2 A                        | Baja              | PWM y digital        | Alta eficiencia; menos calor, adecuado para robótica       |
-| **A4950**     | 4.5 - 40 V        | 3.5 A                        | Muy baja          | PWM y digital        | MOSFET, menor disipación de energía, excelente para alta potencia |
-| **L6205**     | 8 - 52 V          | 2.8 A                        | Moderada          | PWM y digital        | Alta eficiencia, adecuado para motores de potencia media-alta |
 
 **Controladores para 4 Motores DC**
-Motor Shield Driver L293d Puente H Pap Dc Servo Arduino L293
+Se va a utilizar Motor Shield Driver **L293D** Puente H Pap Dc Servo Arduino **L293**
+Aquí tienes una tabla con las características principales del **módulo L293**:
+
+| **Características**               | **Descripción**                                                                                                                                                    |
+|-----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Tipo de módulo**                | Controlador de motor de puente H                                                                                                                                    |
+| **Número de canales**             | 2 (doble puente H)                                                                                                                                                |
+| **Voltaje de operación**          | 4.5V a 36V                                                                                                                                                         |
+| **Corriente máxima de salida**    | Hasta 600 mA por canal (pico de 1.2A en corto tiempo)                                                                                                              |
+| **Voltaje lógico**                | 5V                                                                                                                                                                |
+| **Modo de operación**             | Control de motores en ambas direcciones (bidireccional)                                                                                                            |
+| **Temperatura de operación**      | -40°C a 150°C                                                                                                                                                      |
+| **Dimensiones:**| **6.8cm x 5.5cm x 2cm** |
+
+Info https://electronilab.co/tienda/shield-l293d-puente-h-para-motores-dc-servos/
+The **L293** accept standard DTL or TTL logic levels and drive inductive loads 
+
+![Motor Shield Driver L293D](Shield-L293D-Puente-H-Para-Motores-Dc-Servos-4.5-24V-1.2A-6.jpg)
+
+El Cotrolador permite varias formas de controlar los motores DC, Hay dos formas de hacerlo, Unidireccional y Bidireccional.
+
+#### Unidireccional
+![ESquema de control unidireccional](Unidirectional_DC_control.svg)
+
+**Tabla 1: Control Unidireccional del Motor DC**
+
+| EN | 3A | M1       | 4A       | M2                     |
+|----|----|----------|----------|------------------------|
+| H  | H  | Parada rápida del motor | H | Correr                  |
+| H  | L  | Correr   | L        | Parada rápida del motor |
+| L  | X  | Parada libre del motor  | X | Parada libre del motor |
+
+
+#### Bidireccional
+![ESquema de control bidireccional](Bidirectional_DC_control.svg)
+
+**Tabla 2: Control Bidireccional del Motor DC**
+
+| EN | 1A | 2A | Función              |
+|----|----|----|----------------------|
+| H  | L  | H  | Girar a la derecha   |
+| H  | H  | L  | Girar a la izquierda |
+| H  | L  | L  | Parada rápida del motor |
+| H  | H  | H  | Parada rápida del motor |
+| L  | X  | X  | Parada libre del motor  |

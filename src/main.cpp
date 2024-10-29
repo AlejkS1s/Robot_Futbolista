@@ -1,15 +1,15 @@
 #include <Arduino.h>
-#include "motor"
+#include "Mov_Controller.h"
+#include <Wire.h>
 
-int myFunction(int, int);
+
+// Initialization process when the device is turned on
 void setup() {
   
 }
 
+
+// 
 void loop() {
 
-}
-
-int myFunction(int x, int y) {
-  
 }
