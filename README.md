@@ -44,8 +44,26 @@ Uso de baterías, ya sea recargables o de un solo uso:
 - Baterias de litio 18650
 - Baterias alcalinas
 - Baterias de 9V
-- regulador para 3.3v (esp32)
+- regulador para 3.3V (esp32)
+- Regulador para (9.0V/5V) (Driver L293)
 
+En esta etapa es necesario regular el voltage de las baterias 18650
+Para el modulo de carga se necesita lo siguiente:
+#### Alternativas al DMP1045U P-Channel (1x)
+- Ao3401a smd
+- MOSFET Canal P 30V 2A
+#### Alternativas al SB220 2A (2x)
+- Diodo Schottky 
+- SSA210
+- FR207
+- SS36
+- SR5150
+- SR260 SB260
+#### 3.3V Regulator ESP32 (500mA)
+- SMD LD1117
+- DC/DC boost buck Converter **MT3608** 6W 2A
+#### 5-9V Regulator Motors (2A)
+- DC/DC boost buck Converter **MT3608** 6W 2A
 
 ### Etapa de Control de Motores
 Para controllar los motores se va a utilizar Driver **L293D** Puente H Pap Dc, El punete H se encarga de controlar el sentido de giro de los motores ()

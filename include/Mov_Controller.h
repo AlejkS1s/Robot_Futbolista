@@ -1,28 +1,55 @@
 /*
-Direction and Movement controller using ESP32 and L293
-*/
-#define DIR_CLK      0
-#define DIR_EN       1
-#define DIR_SER      3
-#define DIR_LATCH    5
-#define PWM_Motor1   6
-#define PWM_Motor2   7
-#define PWM_Motor3   8
-#define PWM_Motor4   9
-// #define Servo_1     10
-// #define Servo_2     11
+Movement controller using ESP32 and L293 half bridge motor driver
 
-class Mov_Controller
+Copyright (c) 2024, Alexis Lozano Guzmán
+*/
+
+#ifndef L293D_H
+#define L293D_H
+
+
+
+class MovmtCtrl
 {
 
-protected:
-    uint8_t num;
+public:
+#ifdef ESP32
+    MovmtCtrl(int ChA, int ChB, int ChC, int ChD, int EN1, int EN2, int pwmC = 0);
+#else
+    MovmtCtrl(int ChA, int ChB, int ChC, int ChD, int EN1, int EN2, int pwmC = INVALID_PIN);
+#endif
+
+#ifdef ESP32
+    bool begin(bool usePwm = true, int frequency = 5000, int resolution = 8);
+#else
+    bool begin(bool usePwm = false);
+#endif
+
+    bool FreeRun();
+    bool Stop() { return SetMotorSpeed(0); }
+    bool SetMotorSpeed(double speedPercent);
+    double GetCurrentMotorSpeed() { return _currentSpeed; }
+
+    // set pwm output in percentage to stop motor (default 100%, fast motor stop, could be set to 0, to disable pwm output for stopping the motor)
+    void SetStopPWMValue(double pwm = 100) { _stopPWMValue = pwm; }
 
 private:
-    bool is_slave;
-    void func2(void);
+#ifdef ESP32
+    bool SetupPwm(int frequency = 1000, int resolution = 8);
+    int _frequency;
+    int _resolution;
+    int _pwmCh;
+#endif
 
-public:
-    fun1(uint8_t bus_num);
-    
+    int _resolutionFactor;
+    double _currentSpeed;
+    bool _usePwm;
+    int _enablePin;
+    int _ChA;
+    int _ChB;
+    int _ChC;
+    int _ChD;
+    bool _initialized;
+    double _stopPWMValue;
+
 }
