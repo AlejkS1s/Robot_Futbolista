@@ -18,8 +18,18 @@ Robot que juega futbol, y va a competir en Torneo de robótica USCOTRON
 ### ESP32
 
 ### MOTORES DC
+Name: TT motor
+Color: Black
+Type: 1:120
+Features: Strong magnetic,Anti-interference
+Model: 1A120-1812L(Prefer Torque)
+Rated voltage: 3V/6V
+Current: ≤180mA/≤250mA
+Speed: 45±10%r/min  90±10%r/min
+Torque: 0.45±10%kgf.cm 0.85±10%kgf.cm
 
 ### Driver 4 Motores DC (3v3 o 5v)
+Motor Shield Driver L293D
 
 ### Baterias
 
@@ -29,10 +39,10 @@ Robot que juega futbol, y va a competir en Torneo de robótica USCOTRON
 
 ## Control del Robot 
 - **Control Manual**
-  - Aplicación android (Bluetooth).
-  - joystick (Investigar).
-  - Aplicación web.
-  - RF control a distancia.
+  - [x] Aplicación android (Bluetooth).
+  - [ ] joystick (Investigar).
+  - [ ] Aplicación web.
+  - [ ] RF control a distancia.
 
 - **Control Semiautomático** **Hard**
   Implementación avanzada que pueda ayudar al robot a reaccionar parcialmente de forma autónoma, asistiendo al operador en el juego.

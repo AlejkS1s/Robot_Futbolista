@@ -5,17 +5,17 @@ Copyright (c) 2024, Alexis Lozano Guzmán
 */
 
 #include <Arduino.h>
-#include "Mov_Controller.h"
+#include "MovmtCtrl.h"
 
 #ifdef ESP32
-MovmtCtrl : MovmtCtrl(int ChA, int ChB, int ChC, int ChD, int EN1, int EN2, int pwmC = 0)
+MovmtCtrl : MovmtCtrl(int M1, int M2, int M3, int M4, int EN1, int EN2, int pwmC = 0)
 #else
-MovmtCtrl : MovmtCtrl(int ChA, int ChB, int ChC, int ChD, int EN1, int EN2, int pwmC = INVALID_PIN)
+MovmtCtrl : MovmtCtrl(int M1, int M2, int M3, int M4, int EN1, int EN2, int pwmC = INVALID_PIN)
 #endif
 
 {
-    _ChA = MotorA;
-    _ChB = MotorB;
+    _M1 = MotorA;
+    _M2 = MotorB;
     _EN1 = enablePin;
     _initialized = false;
     _currentSpeed = 0;
@@ -37,7 +37,7 @@ bool MovmtCtrl::begin(bool usePwm, int frequency, int resolution)
 bool MovmtCtrl::begin(bool usePwm)
 #endif
 {
-    if ((_ChA == INVALID_PIN && _ChB == INVALID_PIN) || (usePwm && _EN1 == INVALID_PIN))
+    if ((_M1 == INVALID_PIN && _M2 == INVALID_PIN) || (usePwm && _EN1 == INVALID_PIN))
         return false;
 
     _usePwm = usePwm;
@@ -50,10 +50,10 @@ bool MovmtCtrl::begin(bool usePwm)
     else
         pinMode(_EN1, OUTPUT);
 
-    if (_ChA != INVALID_PIN)
-        pinMode(_ChA, OUTPUT);
-    if (_ChB != INVALID_PIN)
-        pinMode(_ChB, OUTPUT);
+    if (_M1 != INVALID_PIN)
+        pinMode(_M1, OUTPUT);
+    if (_M2 != INVALID_PIN)
+        pinMode(_M2, OUTPUT);
 
     _initialized = true;
     return true;
@@ -94,10 +94,10 @@ bool MovmtCtrl::FreeRun()
     else
         digitalWrite(_EN1, LOW);
 
-    if (_ChA != INVALID_PIN)
-        digitalWrite(_ChA, HIGH);
-    if (_ChB != INVALID_PIN)
-        digitalWrite(_ChB, HIGH);
+    if (_M1 != INVALID_PIN)
+        digitalWrite(_M1, HIGH);
+    if (_M2 != INVALID_PIN)
+        digitalWrite(_M2, HIGH);
 
     return true;
 }
@@ -107,10 +107,10 @@ bool MovmtCtrl::SetMotorSpeed(double speedPercent)
     if (!_initialized)
         return false;
 
-    if (_ChA != INVALID_PIN)
-        digitalWrite(_ChA, speedPercent > 0 ? HIGH : LOW);
-    if (_ChB != INVALID_PIN)
-        digitalWrite(_ChB, speedPercent < 0 ? HIGH : LOW);
+    if (_M1 != INVALID_PIN)
+        digitalWrite(_M1, speedPercent > 0 ? HIGH : LOW);
+    if (_M2 != INVALID_PIN)
+        digitalWrite(_M2, speedPercent < 0 ? HIGH : LOW);
 
     if (_usePwm)
     {
