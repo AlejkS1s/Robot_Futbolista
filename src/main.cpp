@@ -1,24 +1,20 @@
 #include <Arduino.h>
 #include "MovmtCtrl.h"
 
-// #define DIR_CLK 0
-// #define DIR_EN 1
-// #define DIR_SER 3
-// #define DIR_LATCH 5
-// #define PWM_Motor1 6
-// #define PWM_Motor2 7
-// #define PWM_Motor3 8
-// #define PWM_Motor4 9
-// #define Servo_1     10
-// #define Servo_2     11
+// Define ESP32 pins for Motor Shield
+
 
 // Initialization process when the device is turned on
 void setup() {
+// Setup ESP32 bluetooth connection
+// Use the led onboard for connection status
 
 }
 
 
 // Runing process 
 void loop() {
+// Adjust the speed of the motor based on the received command
+
 
 }
