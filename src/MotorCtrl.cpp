@@ -67,9 +67,11 @@ bool DCMotor::setPWM(int frequency, int resolution)
     _resolution = resolution;
     _resolutionFactor = (1 << _resolution) - 1;
 
-    if (_initialized)
+    if (_initialized) {
         ledcDetach(_PWMPIN);
+    }
     ledcAttachChannel(_PWMPIN, _frequency, _resolution, _pwmChannel);
+    // ledcAttach(_PWMPIN, _frequency, _resolution);
 
     return true;
 }
@@ -83,7 +85,7 @@ bool DCMotor::Release()
     if (_usePwm)
     {
 #ifdef ESP32
-        ledcWrite(_pwmChannel, 0);
+        ledcWriteChannel(_pwmChannel, 0);
 #else
         analogWrite(_PWMPIN, 0);
 #endif
@@ -108,7 +110,7 @@ bool DCMotor::Brake()
     if (_usePwm)
     {
 #ifdef ESP32
-        ledcWrite(_pwmChannel, _resolutionFactor);
+        ledcWriteChannel(_pwmChannel, _resolutionFactor);
 #else
         analogWrite(_PWMPIN, _resolutionFactor);
 #endif
@@ -145,7 +147,7 @@ bool DCMotor::setSpeed(double speedPercent)
     
 
 #ifdef ESP32
-        ledcWrite(_pwmChannel, internalSpeed >= 0 ? internalSpeed : -internalSpeed);
+        ledcWriteChannel(_pwmChannel, internalSpeed >= 0 ? internalSpeed : -internalSpeed);
 #else
         analogWrite(_PWMPIN, internalSpeed >= 0 ? internalSpeed : -internalSpeed);
 #endif

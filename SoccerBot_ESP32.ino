@@ -47,16 +47,16 @@ const bool OUTPUT_CAPABILITY = true; // Defines if ESP32 device has output metho
 BluetoothSerial SerialBT;
 bool confirmRequestDone = false;
 
-uint8_t cmd;
-bool enM1; // true = enable false = disable
-bool enM2; // true = enable false = disable
-bool dirM1; // true = forward false = backward
-bool dirM2; // true = forward false = backward
-double speedM1; // percent 0..100
-double speedM2; // percent 0..100
+SemaphoreHandle_t xSemaphore = NULL; // Create a mutex object
 
-DCMotor motor1(M1A, M1B, PWM1);
-DCMotor motor2(M2A, M2B, PWM2);
+uint8_t cmd;
+bool enM1;             // true = enable false = disable
+bool enM2;             // true = enable false = disable
+double speedM1 = 75.1; // percent 0..100
+double speedM2 = 75.1; // percent 0..100
+
+DCMotor motor1(M1A, M1B, PWM1, 0);
+DCMotor motor2(M2A, M2B, PWM2, 1);
 // DCMotor motor3(M3A, M3B, PWM3);
 // DCMotor motor4(M4A, M4B, PWM4);
 
@@ -160,6 +160,8 @@ void setup()
     char bda_str[18];
     uint8_t pairedDeviceBtAddr[PAIR_MAX_DEVICES][6];
 
+    xSemaphore = xSemaphoreCreateBinary();
+
     pinMode(LED_BUILTIN, OUTPUT);
 
     Serial.begin(115200);
@@ -227,10 +229,12 @@ void setup()
      *************************************************************
      *************************************************************
      */
+
     motor1.init();
     motor2.init();
     // motor3.init();
     // motor4.init();
+
     for (int i = 0; i < 5; i++)
     {
         digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
@@ -267,18 +271,33 @@ void loop()
     if (SerialBT.available())
     {
 
-        cmd = (uint8_t)SerialBT.read();
-        Serial.println(cmd, HEX);
+        cmd = SerialBT.read();
+        Serial.write(cmd);
     }
+
+    // Serial.print("Binary Semaphore released at ");
+    // Serial.println(xTaskGetTickCount());
+    xSemaphoreGive(xSemaphore); // Release the semaphore
+    // delay(1);
 }
 
 void loop2(void *pvParameters)
 {
     while (1)
     {
-        Serial.print("Hello");
-        delay(500); // wait for half a second
-        Serial.println(" World");
-        delay(500); // wait for half a second
+        if (xSemaphoreTake(xSemaphore, (2 * portTICK_PERIOD_MS)))
+        { // try to acquire the semaphore
+            Serial.print("Binary Semaphore acquired at ");
+            Serial.println(xTaskGetTickCount());
+            motor2.setSpeed(speedM2);
+            motor1.setSpeed(speedM1);
+        }
+        else
+        { // if the semaphore was not acquired within 200ms
+            Serial.print("Binary Semaphore not acquired at ");
+            Serial.println(xTaskGetTickCount());
+        }
+        // Serial.println("Running on core: " + String(xPortGetCoreID()));
+        // delay(10);
     }
 }
