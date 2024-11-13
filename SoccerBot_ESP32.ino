@@ -52,8 +52,8 @@ SemaphoreHandle_t xSemaphore = NULL; // Create a mutex object
 uint8_t cmd;
 bool enM1;             // true = enable false = disable
 bool enM2;             // true = enable false = disable
-double speedM1 = 75.1; // percent 0..100
-double speedM2 = 75.1; // percent 0..100
+double speedM1; // percent 0..100
+double speedM2; // percent 0..100
 
 DCMotor motor1(M1A, M1B, PWM1, 0);
 DCMotor motor2(M2A, M2B, PWM2, 1);
@@ -273,7 +273,34 @@ void loop()
 
         cmd = SerialBT.read();
         Serial.write(cmd);
-    }
+
+        // Test commands
+        if (cmd == 'S')
+        {
+            speedM1 = 0;
+            speedM2 = 0;
+        }
+        else if (cmd == 'F')
+        {
+            speedM1 = 90;
+            speedM2 = 90;
+        }
+        else if (cmd == 'B')
+        {
+            speedM1 = -90;
+            speedM2 = -90;
+        }
+        else if (cmd == 'R')
+        {
+            speedM1 = 90;
+            speedM2 = -90;
+        }
+        else if (cmd == 'L')
+        {
+            speedM1 = -90;
+            speedM2 = 90;
+        }
+        }
 
     // Serial.print("Binary Semaphore released at ");
     // Serial.println(xTaskGetTickCount());
@@ -287,14 +314,19 @@ void loop2(void *pvParameters)
     {
         if (xSemaphoreTake(xSemaphore, (2 * portTICK_PERIOD_MS)))
         { // try to acquire the semaphore
-            Serial.print("Binary Semaphore acquired at ");
-            Serial.println(xTaskGetTickCount());
+            // Serial.print("Binary Semaphore acquired at ");
+            // Serial.println(xTaskGetTickCount());
             motor2.setSpeed(speedM2);
             motor1.setSpeed(speedM1);
+            if (cmd == 'K')
+            {
+                motor1.Brake();
+                motor2.Brake();
+            }
         }
         else
         { // if the semaphore was not acquired within 200ms
-            Serial.print("Binary Semaphore not acquired at ");
+            // Serial.print("Binary Semaphore not acquired at ");
             Serial.println(xTaskGetTickCount());
         }
         // Serial.println("Running on core: " + String(xPortGetCoreID()));
