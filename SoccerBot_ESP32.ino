@@ -2,13 +2,7 @@
 #include "include/MotorCtrl.h"
 #include <BluetoothSerial.h>
 
-#define ADJ 36
-// Directions and execution
-// #define FORWARD 0x0F
-// #define BACKWARD 0x0E
-// #define LEFT 0x0D
-// #define RIGHT 0x0C
-// #define ENABLE 0x0A
+#define REMOVE_BONDED_DEVICES 0
 
 // Set LED_BUILTIN if it is not defined by Arduino framework
 #ifndef LED_BUILTIN
@@ -17,19 +11,19 @@
 
 #define PAIR_MAX_DEVICES 10
 
-#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
-#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
-#endif
+// #if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
+// #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
+// #endif
 
 // Check Serial Port Profile
-#if !defined(CONFIG_BT_SPP_ENABLED)
-#error Serial Port Profile for Bluetooth is not available or not enabled. It is only available for the ESP32 chip.
-#endif
+// #if !defined(CONFIG_BT_SPP_ENABLED)
+// #error Serial Port Profile for Bluetooth is not available or not enabled. It is only available for the ESP32 chip.
+// #endif
 
 // Check Simple Secure Pairing
-#if !defined(CONFIG_BT_SSP_ENABLED)
-#error Simple Secure Pairing for Bluetooth is not available or not enabled.
-#endif
+// #if !defined(CONFIG_BT_SSP_ENABLED)
+// #error Simple Secure Pairing for Bluetooth is not available or not enabled.
+// #endif
 
 const char *deviceName = "SoccerBot_ESP32";
 
@@ -46,14 +40,14 @@ const bool OUTPUT_CAPABILITY = true; // Defines if ESP32 device has output metho
 
 BluetoothSerial SerialBT;
 bool confirmRequestDone = false;
+float speedM1 = 0;
+float speedM2 = 0;
+uint8_t speedbuffer[8]; // single byte
+float tmpSpeedM1 = 0;
+float tmpSpeedM2 = 0;
+int startSpeed = 70;
 
 SemaphoreHandle_t xSemaphore = NULL; // Create a mutex object
-
-uint8_t cmd;
-bool enM1;             // true = enable false = disable
-bool enM2;             // true = enable false = disable
-double speedM1; // percent 0..100
-double speedM2; // percent 0..100
 
 DCMotor motor1(M1A, M1B, PWM1, 0);
 DCMotor motor2(M2A, M2B, PWM2, 1);
@@ -135,6 +129,7 @@ void BTAuthCompleteCallback(boolean success)
             digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
             delay(100);
         }
+        digitalWrite(LED_BUILTIN, HIGH);
     }
     else
     {
@@ -142,23 +137,15 @@ void BTAuthCompleteCallback(boolean success)
     }
 }
 
-void serial_response()
-{
-    if (Serial.available())
-    {
-        SerialBT.write(Serial.read());
-    }
-    if (SerialBT.available())
-    {
-        Serial.write(SerialBT.read());
-    }
-    delay(10);
-}
-
 void setup()
 {
+    motor1.init();
+    motor2.init();
+    // motor1.setSpeed(0);
+    // motor2.setSpeed(0);
+
     char bda_str[18];
-    uint8_t pairedDeviceBtAddr[PAIR_MAX_DEVICES][6];
+    uint8_t paired    // motor1.setSpeed(0);DeviceBtAddr[PAIR_MAX_DEVICES][6];
 
     xSemaphore = xSemaphoreCreateBinary();
 
@@ -169,7 +156,6 @@ void setup()
     SerialBT.onConfirmRequest(BTConfirmRequestCallback);
     SerialBT.onKeyRequest(BTKeyRequestCallback);
     SerialBT.onAuthComplete(BTAuthCompleteCallback);
-    // SerialBT.deleteAllBondedDevices(); // Uncomment this to delete paired devices; Must be called after begin
     SerialBT.begin(deviceName); // Initiate Bluetooth device with name in parameter
     Serial.printf("The device started with name \"%s\", now you can pair it with Bluetooth!\n", deviceName);
     if (INPUT_CAPABILITY and OUTPUT_CAPABILITY)
@@ -190,19 +176,20 @@ void setup()
                        "the other device");
     }
 
-    int count = SerialBT.getNumberOfBondedDevices();
+    int bthDevices = SerialBT.getNumberOfBondedDevices();
     char rmt_name[ESP_BT_GAP_MAX_BDNAME_LEN + 1];
-    Serial.printf("Number of bonded devices: %d\n", count);
-    if (count)
+    Serial.printf("Number of bonded devices: %d\n", bthDevices);
+
+    if (bthDevices)
     {
-        if (PAIR_MAX_DEVICES < count)
+        if (PAIR_MAX_DEVICES < bthDevices)
         {
-            count = PAIR_MAX_DEVICES;
+            bthDevices = PAIR_MAX_DEVICES;
         }
-        count = SerialBT.getBondedDevices(count, pairedDeviceBtAddr);
-        if (count)
+        bthDevices = SerialBT.getBondedDevices(bthDevices, pairedDeviceBtAddr);
+        if (bthDevices > 0)
         {
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < bthDevices; i++)
             {
                 SerialBT.requestRemoteName(pairedDeviceBtAddr[i]);
                 while (!SerialBT.readRemoteName(rmt_name))
@@ -211,35 +198,30 @@ void setup()
                 }
                 Serial.printf("Device bonded with: #%d BDA:%s; Name:\"%s\"\n", i, bda2str(pairedDeviceBtAddr[i], bda_str, 18), rmt_name);
                 SerialBT.invalidateRemoteName();
-            }
 
-            // Wait for connection
-            while (!confirmRequestDone && SerialBT.getNumberOfBondedDevices() == 0)
-            {
-                delay(500);
-                digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+                if (REMOVE_BONDED_DEVICES)
+                {
+                    if (SerialBT.deleteBondedDevice(pairedDeviceBtAddr[i]))
+                    {
+                        Serial.printf("Removed dev # %d\n", i);
+                    }
+                    else
+                    {
+                        Serial.printf("Failed removing: # %d", i);
+                    }
+                }
             }
         }
     }
-    /*************************************************************
-     *************************************************************
-     *                                                           *
-     *                     Motor Control setup                   *
-     *                                                           *
-     *************************************************************
-     *************************************************************
-     */
 
-    motor1.init();
-    motor2.init();
-    // motor3.init();
-    // motor4.init();
-
-    for (int i = 0; i < 5; i++)
+    // Wait for connection
+    //                       && bthDevices == 0
+    while (!confirmRequestDone && bthDevices == 0)
     {
+        delay(500);
         digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
-        delay(150);
     }
+
     digitalWrite(LED_BUILTIN, HIGH);
 
     // Second task to run the motors
@@ -252,84 +234,48 @@ void setup()
         NULL,    // Task handle.
         0        // Core where the task should run
     );
+
     Serial.println("SoccerBot is ready for action!");
 }
 
 // Runing process
 void loop()
 {
-    if (confirmRequestDone)
+    if (SerialBT.available() && SerialBT.connected())
     {
-        serial_response();
-        Serial.println("confirmRequestDone");
+
+        SerialBT.readBytes(speedbuffer, 8);
+        memcpy(&tmpSpeedM1, speedbuffer, 4);
+        memcpy(&tmpSpeedM2, speedbuffer + 4, 4);
+        xSemaphoreGive(xSemaphore);
+
+        // Serial.println("Value: " + String(speedM1));
+        // Serial.println("Value: " + String(speedM2));
     }
-    else
+    else if (!SerialBT.connected())
     {
-        delay(1);
+        tmpSpeedM1 = 0;
+        tmpSpeedM2 = 0;
     }
-
-    if (SerialBT.available())
-    {
-
-        cmd = SerialBT.read();
-        Serial.write(cmd);
-
-        // Test commands
-        if (cmd == 'S')
-        {
-            speedM1 = 0;
-            speedM2 = 0;
-        }
-        else if (cmd == 'F')
-        {
-            speedM1 = 90;
-            speedM2 = 90;
-        }
-        else if (cmd == 'B')
-        {
-            speedM1 = -90;
-            speedM2 = -90;
-        }
-        else if (cmd == 'R')
-        {
-            speedM1 = 90;
-            speedM2 = -90;
-        }
-        else if (cmd == 'L')
-        {
-            speedM1 = -90;
-            speedM2 = 90;
-        }
-        }
-
-    // Serial.print("Binary Semaphore released at ");
-    // Serial.println(xTaskGetTickCount());
-    xSemaphoreGive(xSemaphore); // Release the semaphore
-    // delay(1);
+    vTaskDelay(pdMS_TO_TICKS(2));
 }
 
 void loop2(void *pvParameters)
 {
     while (1)
     {
-        if (xSemaphoreTake(xSemaphore, (2 * portTICK_PERIOD_MS)))
-        { // try to acquire the semaphore
+        motor1.setSpeed(speedM1);
+        motor2.setSpeed(speedM2);
+        if (xSemaphoreTake(xSemaphore, 2 * portTICK_PERIOD_MS) == pdTRUE)
+        {
+            // try to acquire the semaphore
             // Serial.print("Binary Semaphore acquired at ");
             // Serial.println(xTaskGetTickCount());
-            motor2.setSpeed(speedM2);
-            motor1.setSpeed(speedM1);
-            if (cmd == 'K')
-            {
-                motor1.Brake();
-                motor2.Brake();
-            }
+            speedM1 = tmpSpeedM1;
+            speedM2 = tmpSpeedM2;
+            xSemaphoreGive(xSemaphore);
         }
-        else
-        { // if the semaphore was not acquired within 200ms
-            // Serial.print("Binary Semaphore not acquired at ");
-            Serial.println(xTaskGetTickCount());
-        }
-        // Serial.println("Running on core: " + String(xPortGetCoreID()));
-        // delay(10);
+
+        // Serial.println("M1: " + String(speedM1) + " M2: " + String(speedM2));
     }
 }

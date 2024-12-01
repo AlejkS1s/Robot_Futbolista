@@ -7,10 +7,10 @@ Movement controller using ESP32 and Arduino Motor Shield v1
 #define MOTORDEBUG 1
 
 // Motor pins
-#define M1A 23
-#define M1B 22
-#define M2A 21
-#define M2B 19
+#define M1A 17
+#define M1B 18
+#define M2A 22
+#define M2B 21
 // #define M3A
 // #define M3B
 // #define M4A
@@ -19,16 +19,16 @@ Movement controller using ESP32 and Arduino Motor Shield v1
 #define INVALID_PIN -1
 
 // Constants that the user passes in to the motor calls
-#define FORWARD 1
-#define BACKWARD 2
-#define BRAKE 3
-#define RELEASE 4
+// #define FORWARD 1
+// #define BACKWARD 2
+// #define BRAKE 3
+// #define RELEASE 4
 
 // PWM pins for ESP32 and Shield Pins
-#define PWM1 13
-#define PWM2 12
-#define PWM3 14
-#define PWM4 27
+#define PWM1 4
+#define PWM2 23
+// #define PWM3 14
+// #define PWM4 27
 
 // PWM frequencies for ESP32 (review)
 #define PWM_FREQ_1KHZ 1
@@ -41,21 +41,23 @@ class DCMotor
 {
 private:
 #ifdef ESP32
-    bool setPWM(int frequency = 6000, int resolution = 12);
+    bool setPWM(int frequency =5000, int resolution = 10);
+    void adjustStart();
     int _frequency;
     int _resolution;
     int _pwmChannel;
 #endif
 
     int _resolutionFactor;
-    double _currentSpeed;
+    float _currentSpeed;
     bool _usePwm;
     uint8_t _PWMPIN;
     uint8_t _MA;
     uint8_t _MB;
     bool _initialized;
+    // float _overshoot;
 
-    double _stopPWMValue;
+    float _stopPWMValue;
 
 public:
 #ifdef ESP32
@@ -65,18 +67,19 @@ public:
 #endif
 
 #ifdef ESP32
-    bool init(bool usePwm = true, int frequency = 6000, int resolution = 12);
+    bool init(bool usePwm = true, int frequency = 5000, int resolution = 10);
 #else
     bool init(bool usePwm = false);
 #endif
 
     bool Release();
-    bool setSpeed(double speedPercent);
+    bool setSpeed(float speed);
+    // bool setSpeed(float speedPercent, bool overshoot);
     uint16_t getCurrentSpeed() { return _currentSpeed; }
     bool Brake();
 
     // set pwm output in percentage to stop motor (default 100%, fast motor stop, could be set to 0, to disable pwm output for stopping the motor)
-    void SetStopPWMValue(double pwm = 100) { _stopPWMValue = pwm; }
+    void SetStopPWMValue(float pwm = 100) { _stopPWMValue = pwm; }
 };
 
 #endif // MotorCtrl_h
